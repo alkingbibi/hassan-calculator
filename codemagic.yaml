@@ -2,27 +2,16 @@ workflows:
   android-build:
     name: Android Build
     scripts:
+      - name: Install dependencies
+        script: |
+          pip3 install Flask
       - name: Build Web to APK
         script: |
-          # 1. استنساخ الأداة كما كنت تفعل
           git clone https://github.com/Jipok/website-to-apk.git
           cd website-to-apk
-
-          # 2. بناء التطبيق باستخدام رابط Replit العام. هذا ضروري ليعمل التطبيق.
-          ./gradlew assembleDebug -PappUrl="https://a51702dd-1333-42b7-8ff6-d744c8b30488-00-2wna80bpuhr6a.kirk.replit.dev" -PappName="Calculator" -PpackageName="com.hassan.calculator"
-
-          # 3. نسخ ملف APK الناتج إلى مجلد المخرجات الخاص بـ Codemagic
-          mkdir -p $CM_ARTIFACT_PATH
-          cp app/build/outputs/apk/debug/app-debug.apk $CM_ARTIFACT_PATH/hassan-calculator.apk
-
-    # 4. إخبار Codemagic بأن هناك ملفات ناتجة ليتم حفظها
-    artifacts:
-      - $CM_ARTIFACT_PATH/*.apk
-
-    # 5. (اختياري) إرسال الملف الناتج إلى بريدك الإلكتروني بالطريقة الرسمية
-    publishing:
-      email:
-        recipients:
-          - alkingbibi27@gmail.com # يمكنك وضع بريدك هنا
-        notify:
-          success: true # إرسال فقط عند النجاح
+          ./gradlew assembleDebug -PappUrl="http://192.168.8.145:5000" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
+          mkdir -p $CM_EXPORT_DIR
+          cp app/build/outputs/apk/debug/app-debug.apk $CM_EXPORT_DIR/app-debug.apk
+      - name: Send email with APK
+        script: |
+          python3 send_email.py
