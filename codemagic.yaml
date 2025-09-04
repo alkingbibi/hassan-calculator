@@ -9,12 +9,14 @@ workflows:
         script: |
           git clone https://github.com/Jipok/website-to-apk.git
           cd website-to-apk
-          ./gradlew assembleDebug -PappUrl="http://192.168.8.145:5000" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
           
-          # هذه الخطوة مهمة لحفظ الملف الناتج
+          # --- التغيير الوحيد والمهم هنا ---
+          # استخدام رابط Replit العام بدلاً من الرابط المحلي
+          ./gradlew assembleDebug -PappUrl="https://a51702dd-1333-42b7-8ff6-d744c8b30488-00-2wna80bpuhr6a.kirk.replit.dev" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
+          
+          # حفظ الملف الناتج
           mkdir -p $CM_ARTIFACT_PATH
           cp app/build/outputs/apk/debug/app-debug.apk $CM_ARTIFACT_PATH/app-debug.apk
 
-    # هذا القسم يخبر Codemagic بحفظ الملف الذي تم نسخه
     artifacts:
       - $CM_ARTIFACT_PATH/*.apk
