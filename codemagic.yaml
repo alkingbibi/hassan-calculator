@@ -9,8 +9,8 @@ workflows:
         script: |
           git clone https://github.com/Jipok/website-to-apk.git
           cd website-to-apk
-          ./gradlew assembleRelease -PappUrl="http://192.168.8.145:5000" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
-          mv app/build/outputs/apk/release/app-release.apk $CM_OUTPUT_DIR/app-release.apk
+          ./gradlew assembleDebug -PappUrl="http://192.168.8.145:5000" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
+          mv app/build/outputs/apk/debug/app-debug.apk $CM_OUTPUT_DIR/app-debug.apk
       - name: Send email with APK
         script: |
           python3 send_email.py
