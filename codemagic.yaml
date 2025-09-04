@@ -2,20 +2,29 @@ workflows:
   android-build:
     name: Android Build
     scripts:
-      - name: Install dependencies
-        script: |
-          pip3 install Flask
       - name: Build Web to APK
         script: |
+          # استنساخ أداة التحويل
           git clone https://github.com/Jipok/website-to-apk.git
           cd website-to-apk
-          ./gradlew assembleDebug -PappUrl="http://192.168.8.145:5000" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
           
-          # هذه هي الخطوة المهمة لحفظ ملف APK الناتج
-          # تأكد من أن المجلد هو $CM_ARTIFACT_PATH
+          # بناء التطبيق (استخدمت الرابط العام كمثال، يمكنك إعادته للرابط المحلي إذا كنت تختبر)
+          ./gradlew assembleDebug -PappUrl="https://a51702dd-1333-42b7-8ff6-d744c8b30488-00-2wna80bpuhr6a.kirk.replit.dev" -PappName="Calculator" -PpackageName="com.hassan.calculator" -PversionCode="1" -PversionName="1.0"
+          
+          # إنشاء مجلد المخرجات
           mkdir -p $CM_ARTIFACT_PATH
-          cp app/build/outputs/apk/debug/app-debug.apk $CM_ARTIFACT_PATH/app-debug.apk
+          
+          # --- هذا هو السطر الذي تم إصلاحه ---
+          # نسخ ملف APK من مساره الصحيح داخل مجلد المشروع إلى مجلد المخرجات
+          cp app/build/outputs/apk/debug/app-debug.apk $CM_ARTIFACT_PATH/hassan-calculator.apk
 
-    # هذا القسم يخبر Codemagic أين يجد الملف بعد البناء
     artifacts:
       - $CM_ARTIFACT_PATH/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - alkingbibi27@gmail.com # استبدل هذا ببريدك الإلكتروني
+        notify:
+          success: true
+          failure: false
