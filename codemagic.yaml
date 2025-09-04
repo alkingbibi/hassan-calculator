@@ -2,13 +2,18 @@ workflows:
   android-build:
     name: Android Build
     scripts:
-      - name: Install Python and pip
+      - name: Install dependencies
         script: |
           pip3 install Flask
+          sudo apt-get update
+          sudo apt-get install -y openjdk-11-jdk
       - name: Build Web to APK
         script: |
-          wget https://github.com/shrithan-reddy/Web-to-APK-Builder/raw/main/apk-builder-1.0.jar
-          java -jar apk-builder-1.0.jar --package com.example.myapp --name "My App" --version "1.0" --url "https://your-flask-app-url.com" --output app-release.apk
+          git clone https://github.com/xtools-at/Android-Web-App-Builder.git
+          cd Android-Web-App-Builder
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon -PappUrl="https://your-flask-app-url.com" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
+          mv app/build/outputs/apk/release/app-release.apk $CM_OUTPUT_DIR/app-release.apk
       - name: Send email with APK
         script: |
           python3 send_email.py
