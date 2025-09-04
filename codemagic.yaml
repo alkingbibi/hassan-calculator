@@ -1,0 +1,31 @@
+workflows:
+  android-build:
+    name: Android Build
+    environment:
+      vars:
+        # Add your environment variables here if needed
+        # For example:
+        # MY_API_KEY: "your_api_key"
+    scripts:
+      - name: Install Python and pip
+        script: |
+          sudo apt-get update
+          sudo apt-get install -y python3 python3-pip
+          pip3 install Flask
+          pip3 install smtplib
+
+      - name: Build Web to APK
+        script: |
+          wget https://github.com/shroudedcode/apk-builder/releases/download/v1.0.0/apk-builder-1.0.0.jar
+          java -jar apk-builder-1.0.0.jar -i index.html -o Calculator.apk -n "Calculator" --app-name "Calculator" --package "com.nibras.calculator"
+
+    artifacts:
+      - Calculator.apk
+
+    publishing:
+      email:
+        recipients:
+          - alkingbibi27@gmail.com # استبدل هذا ببريدك الإلكتروني لاستلام التطبيق
+        enabled: true
+        attachment:
+          - Calculator.apk
