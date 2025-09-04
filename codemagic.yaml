@@ -7,10 +7,9 @@ workflows:
           pip3 install Flask
       - name: Build Web to APK
         script: |
-          git clone https://github.com/xtools-at/Android-Web-App-Builder.git
-          cd Android-Web-App-Builder
-          chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon -PappUrl="https://your-flask-app-url.com" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
+          git clone https://github.com/Jipok/website-to-apk.git
+          cd website-to-apk
+          ./gradlew assembleRelease -PappUrl="http://192.168.8.145:5000" -PappName="My App" -PpackageName="com.example.myapp" -PversionCode="1" -PversionName="1.0"
           mv app/build/outputs/apk/release/app-release.apk $CM_OUTPUT_DIR/app-release.apk
       - name: Send email with APK
         script: |
