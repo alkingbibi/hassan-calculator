@@ -4,10 +4,7 @@ workflows:
     scripts:
       - name: Install Python and pip
         script: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip
           pip3 install Flask
-          pip3 install smtplib
       - name: Build Web to APK
         script: |
           wget https://github.com/shrithan-reddy/Web-to-APK-Builder/raw/main/apk-builder-1.0.jar
